@@ -1,0 +1,238 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:15-alpine
+    container_name: bitprox-postgres
+    environment:
+      POSTGRES_USER: bitprox
+      POSTGRES_PASSWORD: bitprox_dev_password
+      POSTGRES_DB: bitprox_exchange
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./database/init.sql:/docker-entrypoint-initdb.d/init.sql
+    networks:
+      - bitprox-network
+
+  # Redis Cache
+  redis:
+    image: redis:7-alpine
+    container_name: bitprox-redis
+    ports:
+      - "6379:6379"
+    volumes:
+      - redis_data:/data
+    networks:
+      - bitprox-network
+
+  # Auth Service
+  auth-service:
+    build:
+      context: ./apps/auth-service
+      dockerfile: Dockerfile
+    container_name: bitprox-auth-service
+    environment:
+      NODE_ENV: development
+      PORT: 4001
+      DATABASE_URL: postgresql://bitprox:bitprox_dev_password@postgres:5432/bitprox_exchange
+      REDIS_URL: redis://redis:6379
+      JWT_SECRET: your-super-secret-jwt-key-change-in-production
+      JWT_REFRESH_SECRET: your-super-secret-refresh-key-change-in-production
+    ports:
+      - "4001:4001"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - bitprox-network
+    volumes:
+      - ./apps/auth-service:/app
+      - /app/node_modules
+
+  # Balance Service
+  balance-service:
+    build:
+      context: ./apps/balance-service
+      dockerfile: Dockerfile
+    container_name: bitprox-balance-service
+    environment:
+      NODE_ENV: development
+      PORT: 4002
+      DATABASE_URL: postgresql://bitprox:bitprox_dev_password@postgres:5432/bitprox_exchange
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "4002:4002"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - bitprox-network
+    volumes:
+      - ./apps/balance-service:/app
+      - /app/node_modules
+
+  # Matching Engine
+  matching-engine:
+    build:
+      context: ./apps/matching-engine
+      dockerfile: Dockerfile
+    container_name: bitprox-matching-engine
+    environment:
+      NODE_ENV: development
+      PORT: 4003
+      DATABASE_URL: postgresql://bitprox:bitprox_dev_password@postgres:5432/bitprox_exchange
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "4003:4003"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - bitprox-network
+    volumes:
+      - ./apps/matching-engine:/app
+      - /app/node_modules
+
+  # Market Data Service
+  market-data-service:
+    build:
+      context: ./apps/market-data-service
+      dockerfile: Dockerfile
+    container_name: bitprox-market-data-service
+    environment:
+      NODE_ENV: development
+      PORT: 4004
+      DATABASE_URL: postgresql://bitprox:bitprox_dev_password@postgres:5432/bitprox_exchange
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "4004:4004"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - bitprox-network
+    volumes:
+      - ./apps/market-data-service:/app
+      - /app/node_modules
+
+  # Wallet Service
+  wallet-service:
+    build:
+      context: ./apps/wallet-service
+      dockerfile: Dockerfile
+    container_name: bitprox-wallet-service
+    environment:
+      NODE_ENV: development
+      PORT: 4005
+      DATABASE_URL: postgresql://bitprox:bitprox_dev_password@postgres:5432/bitprox_exchange
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "4005:4005"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - bitprox-network
+    volumes:
+      - ./apps/wallet-service:/app
+      - /app/node_modules
+
+  # Admin Service
+  admin-service:
+    build:
+      context: ./apps/admin-service
+      dockerfile: Dockerfile
+    container_name: bitprox-admin-service
+    environment:
+      NODE_ENV: development
+      PORT: 4006
+      DATABASE_URL: postgresql://bitprox:bitprox_dev_password@postgres:5432/bitprox_exchange
+      REDIS_URL: redis://redis:6379
+    ports:
+      - "4006:4006"
+    depends_on:
+      - postgres
+      - redis
+    networks:
+      - bitprox-network
+    volumes:
+      - ./apps/admin-service:/app
+      - /app/node_modules
+
+  # API Gateway
+  api-gateway:
+    build:
+      context: ./apps/api-gateway
+      dockerfile: Dockerfile
+    container_name: bitprox-api-gateway
+    environment:
+      NODE_ENV: development
+      PORT: 4000
+      AUTH_SERVICE_URL: http://auth-service:4001
+      BALANCE_SERVICE_URL: http://balance-service:4002
+      MATCHING_ENGINE_URL: http://matching-engine:4003
+      MARKET_DATA_SERVICE_URL: http://market-data-service:4004
+      WALLET_SERVICE_URL: http://wallet-service:4005
+      ADMIN_SERVICE_URL: http://admin-service:4006
+    ports:
+      - "4000:4000"
+    depends_on:
+      - auth-service
+      - balance-service
+      - matching-engine
+      - market-data-service
+      - wallet-service
+      - admin-service
+    networks:
+      - bitprox-network
+    volumes:
+      - ./apps/api-gateway:/app
+      - /app/node_modules
+
+  # Web Frontend
+  web-frontend:
+    build:
+      context: ./apps/web-frontend
+      dockerfile: Dockerfile
+    container_name: bitprox-web-frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:4000
+      REACT_APP_WS_URL: ws://localhost:4000
+    ports:
+      - "3000:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - bitprox-network
+    volumes:
+      - ./apps/web-frontend:/app
+      - /app/node_modules
+
+  # Admin Frontend
+  admin-frontend:
+    build:
+      context: ./apps/admin-frontend
+      dockerfile: Dockerfile
+    container_name: bitprox-admin-frontend
+    environment:
+      REACT_APP_API_URL: http://localhost:4000
+    ports:
+      - "3001:3000"
+    depends_on:
+      - api-gateway
+    networks:
+      - bitprox-network
+    volumes:
+      - ./apps/admin-frontend:/app
+      - /app/node_modules
+
+volumes:
+  postgres_data:
+  redis_data:
+
+networks:
+  bitprox-network:
+    driver: bridge

@@ -1,0 +1,65 @@
+{
+  "name": "bitprox-exchange",
+  "version": "1.0.0",
+  "description": "BitProX - Professional Binance-like Cryptocurrency Exchange",
+  "private": true,
+  "author": "BitProX Team",
+  "license": "MIT",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "concurrently \"npm run dev:*\"",
+    "dev:auth": "cd apps/auth-service && npm run dev",
+    "dev:balance": "cd apps/balance-service && npm run dev",
+    "dev:matching": "cd apps/matching-engine && npm run dev",
+    "dev:market-data": "cd apps/market-data-service && npm run dev",
+    "dev:wallet": "cd apps/wallet-service && npm run dev",
+    "dev:admin": "cd apps/admin-service && npm run dev",
+    "dev:gateway": "cd apps/api-gateway && npm run dev",
+    "dev:web": "cd apps/web-frontend && npm run dev",
+    "dev:admin-web": "cd apps/admin-frontend && npm run dev",
+    "build": "npm run build --workspaces",
+    "test": "npm run test --workspaces",
+    "test:coverage": "npm run test:coverage --workspaces",
+    "lint": "eslint . --ext .ts,.tsx",
+    "format": "prettier --write \"**/*.{ts,tsx,json,md}\"",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "docker:logs": "docker-compose logs -f",
+    "docker:ps": "docker-compose ps",
+    "db:migrate": "node scripts/migrate.js",
+    "db:seed": "node scripts/seed.js"
+  },
+  "devDependencies": {
+    "@types/node": "^20.9.0",
+    "@typescript-eslint/eslint-plugin": "^6.11.0",
+    "@typescript-eslint/parser": "^6.11.0",
+    "concurrently": "^8.2.2",
+    "eslint": "^8.54.0",
+    "prettier": "^3.1.0",
+    "typescript": "^5.2.2"
+  },
+  "engines": {
+    "node": ">=18.0.0",
+    "npm": ">=9.0.0"
+  },
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/anurag698/bitprox-exchange.git"
+  },
+  "keywords": [
+    "cryptocurrency",
+    "exchange",
+    "trading",
+    "binance",
+    "bitcoin",
+    "ethereum",
+    "blockchain",
+    "microservices",
+    "typescript",
+    "react",
+    "nodejs"
+  ]
+}
