@@ -1,23 +1,21 @@
-// apps/balance/index.ts
-/**
- * Balance Microservice Entry Point
- * Handles user balances, fund transfers, and ledger operations
- */
+// Update apps/balance/index.ts to add ledger/history routes
 import express from 'express';
+import { getBalances } from './db';
+import { addBalanceHistoryRoutes } from './history';
 
 const app = express();
 app.use(express.json());
 
-// Get user balances
-app.get('/balances/:userId', (req, res) => {
-  // TODO: Fetch user's crypto/fiat balances
-  res.send({ userId: req.params.userId, balances: {} });
+app.get('/balances/:userId', async (req, res) => {
+  const balances = await getBalances(req.params.userId);
+  res.send({ userId: req.params.userId, balances });
 });
 
-// Transfer funds between users
+addBalanceHistoryRoutes(app);
+
 app.post('/transfer', (req, res) => {
-  // TODO: Validate and transfer funds, ledger integration
   const { fromUserId, toUserId, amount, currency } = req.body;
+  // TODO: Validate and transfer funds, ledger integration
   res.send({ status: 'transfer received', fromUserId, toUserId, amount, currency });
 });
 
