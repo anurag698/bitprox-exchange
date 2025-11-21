@@ -301,6 +301,19 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 - Built with modern best practices for scalability and security
 - Community feedback and contributions
 
+## Using GitHub Copilot in Codespaces
+
+This repository includes a devcontainer configuration that installs GitHub Copilot extensions automatically when you open a Codespace.
+
+Steps to use Copilot in a Codespace:
+
+1. Open this repository in GitHub Codespaces (Code → Open with Codespaces → New codespace).
+2. After the Codespace starts the devcontainer, the GitHub Copilot and Copilot Chat extensions will be installed automatically.
+3. Sign in to GitHub if prompted and enable Copilot (a subscription or organization seat may be required).
+4. Use the Copilot panel (on the left or via View → Command Palette → Copilot) to ask natural-language commands. Note: Copilot Chat can provide code, suggest commands, and — when permitted — run or suggest terminal commands you can copy or execute.
+
+If you prefer to run locally in VS Code, the repository includes a VS Code recommendation file (.vscode/extensions.json) to suggest installing the Copilot extensions.
+
 ## 📧 Support
 
 For questions and support:
