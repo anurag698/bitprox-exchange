@@ -307,7 +307,7 @@ For questions and support:
 - GitHub Issues: [Report a bug](https://github.com/anurag698/bitprox-exchange/issues)
 - Email: admin@bitprox.exchange
 
-## 🤖 Using GitHub Copilot in Codespaces
+### Using GitHub Copilot in Codespaces
 
 This repository includes a devcontainer configuration that installs GitHub Copilot extensions automatically when you open a Codespace.
 
